@@ -6,16 +6,19 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import wingorithm.ticketing.vibeengineering.common.model.dto.BaseResponse;
 import wingorithm.ticketing.vibeengineering.common.model.dto.ErrorSchema;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<BaseResponse<Object>> handleAllExceptions(Exception ex) {
+        log.error("An unexpected error occurred", ex);
         BaseResponse<Object> response = BaseResponse.builder()
                 .errorSchema(ErrorSchema.builder()
                         .errorCode("9999")
-                        .message(ex.getMessage())
+                        .message("An unexpected error occurred")
                         .build())
                 .build();
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -24,7 +24,7 @@ class GlobalExceptionHandlerTest {
         BaseResponse<Object> response = responseEntity.getBody();
         assertNotNull(response.getErrorSchema());
         assertEquals("9999", response.getErrorSchema().getErrorCode());
-        assertEquals("Test exception message", response.getErrorSchema().getMessage());
+        assertEquals("An unexpected error occurred", response.getErrorSchema().getMessage());
         assertNull(response.getOutputSchema());
     }
 }
