@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import wingorithm.ticketing.vibeengineering.event.model.entity.EventEntity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Repository
@@ -17,10 +17,11 @@ public interface EventRepository extends JpaRepository<EventEntity, UUID> {
     @Query("SELECT e FROM EventEntity e " +
            "WHERE (:location IS NULL OR e.location = :location) " +
            "AND (:artist IS NULL OR e.artist = :artist) " +
-           "AND (CAST(:date AS date) IS NULL OR CAST(e.dateTime AS date) = :date)")
+           "AND (CAST(:dateStart AS timestamp) IS NULL OR (e.dateTime >= :dateStart AND e.dateTime < :dateEnd))")
     Page<EventEntity> searchEvents(
             @Param("location") String location,
             @Param("artist") String artist,
-            @Param("date") LocalDate date,
+            @Param("dateStart") LocalDateTime dateStart,
+            @Param("dateEnd") LocalDateTime dateEnd,
             Pageable pageable);
 }
