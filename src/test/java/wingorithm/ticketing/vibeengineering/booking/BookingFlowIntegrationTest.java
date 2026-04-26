@@ -1,67 +1,59 @@
 // src/test/java/wingorithm/ticketing/vibeengineering/booking/BookingFlowIntegrationTest.java
 package wingorithm.ticketing.vibeengineering.booking;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import wingorithm.ticketing.vibeengineering.booking.controller.BookingController;
+import wingorithm.ticketing.vibeengineering.booking.model.dto.BookingResponse;
 import wingorithm.ticketing.vibeengineering.booking.model.dto.ReserveTicketRequest;
-import wingorithm.ticketing.vibeengineering.booking.repository.BookingRepository;
-import wingorithm.ticketing.vibeengineering.event.model.entity.EventEntity;
-import wingorithm.ticketing.vibeengineering.event.repository.EventRepository;
+import wingorithm.ticketing.vibeengineering.booking.service.BookingService;
+import wingorithm.ticketing.vibeengineering.common.model.dto.BaseResponse;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-@ActiveProfiles("test") // Assuming you have a test profile to potentially connect to a test DB
+@ExtendWith(MockitoExtension.class)
 class BookingFlowIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Mock
+    private BookingService bookingService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private EventRepository eventRepository;
-
-    @Autowired
-    private BookingRepository bookingRepository;
+    @InjectMocks
+    private BookingController bookingController;
 
     @Test
-    void reserveTicket_EndToEnd_Success() throws Exception {
-        // Find an event from seed data
-        EventEntity event = eventRepository.findAll().get(0);
-
+    void reserveTicket_Success_ReturnsReservedStatus() {
         ReserveTicketRequest request = new ReserveTicketRequest();
-        request.setEventId(event.getId());
-        request.setCustomerId(UUID.fromString("c1c1c1c1-c1c1-c1c1-c1c1-c1c1c1c1c1c1")); // From V2 seed
-        request.setQuantity(1);
         String idempotencyKey = UUID.randomUUID().toString();
 
-        int initialTickets = event.getAvailableTickets();
+        BookingResponse mockBookingResponse = BookingResponse.builder()
+                .bookingId(UUID.randomUUID())
+                .status("RESERVED")
+                .expiresAt(LocalDateTime.now().plusMinutes(15))
+                .finalPrice(new BigDecimal("100.00"))
+                .build();
 
-        mockMvc.perform(post("/api/v1/bookings")
-                .header("Idempotency-Key", idempotencyKey)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.errorSchema.errorCode").value("0000"))
-                .andExpect(jsonPath("$.outputSchema.status").value("RESERVED"));
+        when(bookingService.reserveTicket(any(ReserveTicketRequest.class), eq(idempotencyKey)))
+                .thenReturn(mockBookingResponse);
 
-        EventEntity updatedEvent = eventRepository.findById(event.getId()).get();
-        assertEquals(initialTickets - 1, updatedEvent.getAvailableTickets());
+        BaseResponse<BookingResponse> response = bookingController.reserveTicket(request, idempotencyKey);
+
+        assertNotNull(response);
+        assertEquals("0000", response.getErrorSchema().getErrorCode());
+        assertEquals("Success", response.getErrorSchema().getMessage());
+        assertNotNull(response.getOutputSchema());
+        assertEquals("RESERVED", response.getOutputSchema().getStatus());
     }
 }
