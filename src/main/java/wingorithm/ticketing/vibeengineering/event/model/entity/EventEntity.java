@@ -37,4 +37,7 @@ public class EventEntity extends BaseEntity {
 
     @Column(name = "base_price", nullable = false, precision = 15, scale = 2)
     private BigDecimal basePrice;
+
+    @Column(name = "available_tickets")
+    private Integer availableTickets;
 }
