@@ -53,4 +53,10 @@ public class BookingEntity extends BaseEntity {
 
     @Column(name = "idempotency_key", unique = true)
     private String idempotencyKey;
+
+    @Column(name = "receipt_url")
+    private String receiptUrl;
+
+    @Column(name = "payment_failure_reason", columnDefinition = "TEXT")
+    private String paymentFailureReason;
 }
