@@ -22,7 +22,13 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public Page<EventResponse> searchEvents(String location, String artist, LocalDate date, Pageable pageable) {
-        return eventRepository.searchEvents(location, artist, date, pageable)
+        java.time.LocalDateTime dateStart = null;
+        java.time.LocalDateTime dateEnd = null;
+        if (date != null) {
+            dateStart = date.atStartOfDay();
+            dateEnd = date.plusDays(1).atStartOfDay();
+        }
+        return eventRepository.searchEvents(location, artist, dateStart, dateEnd, pageable)
                 .map(eventMapper::toResponse);
     }
 }
