@@ -2,5 +2,6 @@
 
 - [x] Role-Based Access
 - [x] Event Search
-- [ ] Booking Flow
+- [x] Booking Flow
 - [ ] Payment Processing
+- [ ] **TODO:** Fix build issues and implement `BookingFlowIntegrationTest.java`
