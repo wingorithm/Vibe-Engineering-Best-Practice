@@ -58,7 +58,7 @@ wingorithm.ticketing.vibeengineering
 
 ## 4. Database Conventions
 * always add `created_at` and `updated_at` fields on master table
-* 
+
 ## 5. API RESPONSE Conventions
 ```json
 {

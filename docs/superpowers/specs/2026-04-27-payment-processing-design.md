@@ -72,7 +72,6 @@
 5.  A `BaseResponse` with an appropriate `ErrorSchema` is returned to the user.
 
 **Testing:**
-*   **Unit Tests:** For `PaymentServiceImpl` (using a mock Feign client) and `BookingServiceImpl` (mocking the `PaymentService`).
-*   **Integration Tests:** Use a tool like WireMock to mock the external payment gateway (`http://localhost:9001`) and test the full flow within a `@SpringBootTest` context.
+*   **Unit Tests:** For `PaymentServiceImpl` (using a mock Feign client) and `BookingServiceImpl` (mocking the `PaymentService`)
 
 Does this design look good? Is there anything you would like to clarify or change?
