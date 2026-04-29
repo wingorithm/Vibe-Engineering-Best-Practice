@@ -1,6 +1,7 @@
 package wingorithm.ticketing.vibeengineering.booking.model.dto;
 
 import lombok.Data;
+
 import java.util.UUID;
 
 @Data

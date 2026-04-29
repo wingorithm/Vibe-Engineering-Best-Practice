@@ -19,8 +19,6 @@ CREATE TABLE IF NOT EXISTS vibeengineer.booking (
     final_price DECIMAL(15, 2) NOT NULL,
     payment_transaction_id UUID,
     idempotency_key VARCHAR(255) UNIQUE,
-    receipt_url VARCHAR(255),
-    payment_failure_reason TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

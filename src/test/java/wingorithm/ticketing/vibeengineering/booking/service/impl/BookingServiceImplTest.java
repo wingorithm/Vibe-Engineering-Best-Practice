@@ -1,7 +1,6 @@
 package wingorithm.ticketing.vibeengineering.booking.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -43,8 +42,10 @@ class BookingServiceImplTest {
     private IdempotencyKeyRepository idempotencyKeyRepository;
     @Mock
     private PriceCalculatorService priceCalculatorService;
+    @Mock
+    private wingorithm.ticketing.vibeengineering.payment.service.PaymentService paymentService;
     @Spy
-    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @InjectMocks
     private BookingServiceImpl bookingService;
@@ -59,12 +60,14 @@ class BookingServiceImplTest {
 
         EventEntity event = EventEntity.builder().id(request.getEventId()).availableTickets(10).basePrice(new BigDecimal("100.00")).build();
         CustomerEntity customer = CustomerEntity.builder().id(request.getCustomerId()).build();
+        wingorithm.ticketing.vibeengineering.payment.integration.dto.PaymentResponse paymentResponse = wingorithm.ticketing.vibeengineering.payment.integration.dto.PaymentResponse.builder().status("COMPLETED").build();
 
         when(idempotencyKeyRepository.findById(idempotencyKey)).thenReturn(Optional.empty());
         when(idempotencyKeyRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
         when(eventRepository.findByIdWithPessimisticLock(request.getEventId())).thenReturn(Optional.of(event));
         when(customerRepository.findById(request.getCustomerId())).thenReturn(Optional.of(customer));
         when(priceCalculatorService.calculateFinalPrice(any(), any(), anyInt())).thenReturn(new BigDecimal("100.00"));
+        when(paymentService.processPayment(any())).thenReturn(paymentResponse);
         when(bookingRepository.save(any())).thenAnswer(i -> i.getArguments()[0]);
 
         BookingResponse response = bookingService.reserveTicket(request, idempotencyKey);

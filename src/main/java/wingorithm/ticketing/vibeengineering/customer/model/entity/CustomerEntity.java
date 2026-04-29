@@ -3,6 +3,7 @@ package wingorithm.ticketing.vibeengineering.customer.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import wingorithm.ticketing.vibeengineering.common.model.entity.BaseEntity;
+
 import java.util.UUID;
 
 @Entity
